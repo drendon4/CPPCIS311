@@ -1,0 +1,467 @@
+<!-- 1. -->
+<!DOCTYPE html>
+<html>
+<body>
+<h1>JavaScript Can Validate Input</h1>
+<p>Please input a number between 1 and 10:</p>
+<input id="numb" type="number">
+<button type="button" onclick="myFunction()">Submit</button>
+<p id="demo"></p>
+<script>
+function myFunction() {
+var x, text;
+
+// Get the value of the input field with id="numb"
+x = document.getElementById("numb").value;
+
+// If x is Not a Number or less than one or greater than 10
+if (isNaN(x) || x < 1 || x > 10) {
+text = "Input not valid";
+} else {
+text = "Input OK";
+}
+document.getElementById("demo").innerHTML = text;
+}
+</script>
+</body>
+</html>
+
+<!-- 2. -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function myFunction() {
+document.getElementById("demo").innerHTML ="Paragraph changed.";
+}
+</script>
+</head>
+<body>
+<h1>My Web Page</h1>
+<p id="demo">A Paragraph</p>
+<button type="button" onclick="myFunction()">Try it</button>
+</body>
+</html>
+
+<!-- 3. -->
+<!DOCTYPE html>
+<html>
+<body>
+<h1>My First Web Page</h1>
+<p>My First Paragraph</p>
+<p id="demo"></p>
+<script>
+document.getElementById("demo").innerHTML = 5 + 6;
+</script>
+</body>
+</html>
+
+<!-- 4. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<h1>My First Web Page</h1>
+<p>My first paragraph.</p>
+<script>
+console.log(5 + 6);
+</script>
+</body>
+</html>
+
+<!-- 5. -->
+<!DOCTYPE html>
+<html>
+<body>
+<h1>JavaScript Statements</h1>
+<p>Statements are separated by semicolons.</p>
+<p>The variables x, y, and z are assigned the values 5, 6, and 11:</p>
+<p id="demo"></p>
+<script>
+var x = 5;
+var y = 6;
+var z = x + y;
+document.getElementById("demo").innerHTML = z;
+</script>
+</body>
+</html>
+
+<!-- 6. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<h1>JavaScript Expressions</h1>
+<p>Expressions compute to values.</p>
+<p id="demo"></p>
+<script>
+var x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+</script>
+</body>
+</html>
+
+<!-- 7. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<h1>JavaScript Expressions</h1>
+<p>Expressions compute to values.</p>
+<p id="demo"></p>
+<script>
+document.getElementById("demo").innerHTML = "John" + " " + "Doe";
+</script>
+</body>
+</html>
+
+<!-- 8. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p id="demo"></p>
+<script>
+var d = new Date("October 13, 2014 11:13:00");
+document.getElementById("demo").innerHTML = d;
+</script>
+</body>
+</html>
+
+<!-- 9. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p>Display the value of Boolean(10 > 9):</p>
+<button onclick="myFunction()">Try it</button>
+<p id="demo"></p>
+<script>
+function myFunction() {
+document.getElementById("demo").innerHTML = Boolean(10 > 9);
+}
+</script>
+</body>
+</html>
+
+<!-- 10. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p>Remove the comment (at the beginning of each line) to test each case:</p>
+<p id="demo"></p>
+<script>
+var x;
+//x = (0 == ""); // true
+//x = (1 == "1"); // true
+//x = (1 == true); // true
+//x = (0 === ""); // false
+//x = (1 === "1"); // false
+//x = (1 === true); // false
+document.getElementById("demo").innerHTML = x;
+</script>
+</body>
+</html>
+
+<!-- 11. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p id="demo"></p>
+<script>
+var day;
+switch (new Date().getDay()) {
+case 0:
+day = "Sunday";
+break;
+case 1:
+day = "Monday";
+break;
+case 2:
+day = "Tuesday";
+break;
+case 3:
+day = "Wednesday";
+break;
+case 4:
+day = "Thursday";
+break;
+case 5:
+day = "Friday";
+break;
+case 6:
+day = "Saturday";
+break;
+default:
+day = "unknown";
+}
+document.getElementById("demo").innerHTML = "Today is " + day;
+</script>
+</body>
+</html>
+
+<!-- 12. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p>Click the button to display todays day of the week.</p>
+<button onclick="myFunction()">Try it</button>
+<p id="demo"></p>
+<script>
+function myFunction() {
+var d = new Date();
+var n = d.getDay()
+document.getElementById("demo").innerHTML = n;
+}
+</script>
+</body>
+</html>
+
+<!-- 13. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p>Creating a JavaScript Object.</p>
+<p id="demo"></p>
+<script>
+var person = {
+firstName : "John",
+lastName : "Doe",
+age : 50,
+eyeColor : "blue"
+};
+document.getElementById("demo").innerHTML = person.firstName + " " + person.lastName;
+</script>
+</body>
+</html>
+
+<!-- 14. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p id="demo"></p>
+<script>
+function person(first, last, age, eye) {
+this.firstName = first;
+this.lastName = last;
+this.age = age;
+this.eyeColor = eye;
+}
+var myFather = new person("John", "Doe", 50,"blue");
+var myMother = new person("Sally", "Rally", 48,"green");
+document.getElementById("demo").innerHTML =
+"My father is " + myFather.age + ". My mother is " + myMother.age;
+</script>
+</body>
+</html>
+
+<!-- 15. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p>There are two different ways to access an object property:</p>
+<p>You can use .property or ["property"].</p>
+<p id="demo"></p>
+<script>
+var person = {
+firstname:"John",
+lastname:"Doe",
+age:50,
+eyecolor:"blue"
+};
+document.getElementById("demo").innerHTML = person["firstname"] + " is " + person ["age"] + "years old.";
+</script>
+</body>
+</html>
+
+<!-- 16. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p id="demo"></p>
+<script>
+var txt = "";
+var person = {fname:"John", lname:"Doe", age:25};
+var x;
+for (x in person) {
+txt += person[x] + " ";
+}
+document.getElementById("demo").innerHTML = txt;
+</script>
+</body>
+</html>
+
+<!-- 17. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p>You can add new properties to existing objects.</p>
+<p id="demo"></p>
+<script>
+var person = {
+firstname:"John",
+lastname:"Doe",
+age:50,
+eyecolor:"blue"
+};
+person.nationality = "English";
+document.getElementById("demo").innerHTML = person.firstname + " is " +  person.nationality + ".";
+</script>
+</body>
+</html>
+
+<!-- 18. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p>You can delete object properties.</p>
+<p id="demo"></p>
+<script>
+var person = {
+firstname:"John",
+lastname:"Doe",
+age:50,
+eyecolor:"blue"
+};
+delete person.age;
+document.getElementById("demo").innerHTML = person.firstname + " is " + person.age + " years old.";
+</script>
+</body>
+</html>
+
+<!-- 19. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p>Creating and using an object method.</p>
+<p>An object method is stored as a function definition, in an object property.</p>
+<p id="demo"></p>
+<script>
+var person = {
+firstName: "John",
+lastName : "Doe",
+id : 5566,
+fullName : function() {
+return this.firstName + " " + this.lastName;
+}
+};
+document.getElementById("demo").innerHTML = person.fullName();
+</script>
+</body>
+</html>
+
+<!-- 20. doing an object prototype , -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p id="demo"></p>
+<script>
+function person(firstName,lastName,age,eyeColor)
+{
+this.firstName = firstName;
+this.lastName = lastName;
+this.age = age;
+this.eyeColor = eyeColor;
+this.changeName = function (name) {
+this.lastName = name;
+}
+}
+var myMother = new person("Sally","Rally", 48,"green");
+myMother.changeName("Doe");
+document.getElementById("demo").innerHTML = "My mother's last name is " + myMother.lastName;
+</script>
+</body>
+</html>
+
+<!-- 21. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p id="demo"></p>
+<script>
+function person(first, last, age, eye) {
+this.firstName = first;
+this.lastName = last;
+this.age = age;
+this.eyeColor = eye;
+}
+var myFather = new person("John", "Doe", 50, "blue");
+var myMother = new person("Sally", "Rally", 48, "green");
+document.getElementById("demo").innerHTML = "My father is " + myFather.age + ". My mother is " + myMother.age;
+</script>
+</body>
+</html>
+
+<!-- 22. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p id="demo"></p>
+<script>
+function person(first, last, age, eye) {
+this.firstName = first;
+this.lastName = last;
+this.age = age;
+this.eyeColor = eye;
+}
+var myFather = new person("John", "Doe", 50, "blue");
+var myMother = new person("Sally", "Rally", 48, "green");
+myFather.name = function() {
+return this.firstName + " " + this.lastName;
+}; //adds a new function to the object
+document.getElementById("demo").innerHTML = "My father is " + myFather.name();
+</script>
+</body>
+</html>
+
+<!-- 22. -->
+
+<!DOCTYPE html>
+<html>
+<body>
+<p id="demo"></p>
+<script>
+function person(first, last, age, eye) {
+this.firstName = first;
+this.lastName = last;
+this.age = age;
+this.eyeColor = eye;
+this.name = function() {
+return this.firstName + " " + this.lastName
+};
+}
+var myFather = new person("John", "Doe", 50, "blue");
+document.getElementById("demo").innerHTML = "My father is " + myFather.name();
+</script>
+</body>
+</html>
+
+<!-- 23. introducing json, and data transfer using -->
+
+<!-- javascript -->
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Create Object from JSON String</h2>
+<p id="demo"></p>
+<script>
+var text = '{"employees":[' + '{"firstName":"John","lastName":"Doe" },' + '{"firstName":"Anna","lastName":"Smith" },' + '{"firstName":"Peter","lastName":"Jones" }]}';
+obj = JSON.parse(text);
+document.getElementById("demo").innerHTML = obj.employees[1].firstName + " " + obj.employees[1].lastName;
+</script>
+</body>
+</html>
