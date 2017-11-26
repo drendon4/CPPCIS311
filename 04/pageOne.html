@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="icon" href="./favicon.ico">
+
+	<title>Page One</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="./css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<!-- <link href="./assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet"> -->
+
+	<!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+	<!-- <script src="./assets/js/ie-emulation-modes-warning.js"></script> -->
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<![endif]-->
+
+	<!-- Custom styles for this template -->
+	<!-- <link href="carousel.css" rel="stylesheet"> -->
+	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
+	<script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
+</head>
+<!-- NAVBAR ================================================== -->
+<body id="bod">
+	<div class="navbar-wrapper">
+		<div class="container">
+			<nav class="navbar navbar-inverse navbar-static-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="pageOne.html">Project 4</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a>LOGIN</a></li>
+						<button id="login">Login</button>
+						<li><a href="pageTwo.html">Two</a></li>
+						<li><a href="pageThree.html">Three</a></li>
+						<li><a href="pageFour.html">Four</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pages<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="pageTwo.html">Page Two</a></li>
+								<li><a href="pageThree.html">Page Three</a></li>
+								<li><a href="pageFour.html">Page Four</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+			</nav>
+		</div>
+	</div>
+	
+	<h1>Cal Poly Departments:</h1>
+	<strong>Enter Departments to Search: </strong><input id="inputField" type="text"></input>
+    <button id="doQuery">Search</button><br>
+	<div class="row">
+		<div class="col-sm-5">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Departments</h3>
+				</div>
+				<div class="panel-body">
+					<div id="output"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+    var appID = '694364530747436'; //from facebook
+    var roleArn = 'arn:aws:iam::356241754209:role/testWeek4'; //from AWS IAM
+	var myinput = null;
+	
+	document.getElementById('doQuery').onclick = function()
+	{
+		document.getElementById("output").innerHTML = "";
+		dynamodb = new AWS.DynamoDB({ region: 'us-east-2' });
+		docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb });
+		myinput = document.getElementById("inputField").value;
+		console.log(myinput);
+
+		if (myinput != null)
+		{
+			var params = 
+			{
+				TableName:'collegeDegree',
+				KeyConditionExpression:'department = :v1',
+				ExpressionAttributeValues: 
+				{
+					':v1':myinput
+				}
+			};
+			docClient.query
+			(
+				params, function(err, resultData)
+				{
+					if(err)
+					{
+						document.getElementById("output").innerHTML =JSON.stringify(err, null, 2);
+					}
+					else 
+					{
+						resultData.Items.forEach
+						(
+							function(item) 
+							{
+								var x = item.department;
+								var y = item.Description;
+								var dynamicDiv = document.createElement("div");
+								var newp = document.createElement("p");
+								var newPMessage = "my data is saying: " + x + " " + y + "  "; 
+								var nodeToPaint = document.createTextNode(newPMessage);
+								newp.appendChild(nodeToPaint);
+								dynamicDiv.appendChild(newp);
+								
+								var element = document.getElementById("output");
+								element.appendChild(dynamicDiv);
+							}
+						);
+					}
+				}
+			)
+		}
+	};
+	//FB / AWS
+	window.fbAsyncInit = function () 
+	{
+		FB.init({appId: "694364530747436" ,xfbml:true,version:'v2.10'});
+		document.getElementById('login').onclick = function () 
+		{
+			console.log("Login Button Clicked");
+			FB.login
+			(
+				function (response) 
+				{
+					if (response.authResponse) 
+					{
+						AWS.config.credentials = new AWS.WebIdentityCredentials
+						(
+							{ 
+								//WIF
+								RoleArn: roleArn,
+								ProviderId: 'graph.facebook.com',
+								WebIdentityToken: response.authResponse.accessToken
+							}
+						);
+						console.log("Login Sucessfully");
+					}
+					else 
+					{
+						console.log("Issue logging in");
+					}
+					// Load the FB JS SDK asynchronously
+					(
+						function (d, s, id) 
+						{
+							var js, fjs = d.getElementsByTagName(s)[0];
+							if (d.getElementById(id)) { return; }
+							js = d.createElement(s); js.id = id;
+							js.src = "//connect.facebook.net/en_US/sdk.js";
+							fjs.parentNode.insertBefore(js, fjs);
+						}
+						(document, 'script', 'facebook-jssdk')
+					);
+				}
+			)
+		}
+	}
+	</script>
+	<!-- Bootstrap core JavaScript =================================================  -->
+	<!-- Placed at the end of the document so the pages load faster  -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> 
+	<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+	<script src="./js/bootstrap.min.js"></script>
+	<!-- Just to make our placeholder images work. Don't actually copy the next line!  -->
+	<script src="./js/vendor/holder.min.js"></script> 
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug  -->
+	<script src="./assets/js/ie10-viewport-bug-workaround.js"></script> 
+</body>
+</html>
