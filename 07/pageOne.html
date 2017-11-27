@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="icon" href="./favicon.ico">
+
+	<title>Page One</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="./css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<!-- <link href="./assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet"> -->
+
+	<!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+	<!-- [if lt IE 9]>
+	<!-- <script src="../../assets/js/ie8-responsive-file-warning.js"></script> -->
+	<!-- [endif]-->
+	<!-- <script src="./assets/js/ie-emulation-modes-warning.js"></script> -->
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!-- [if lt IE 9]-->
+	<!-- <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script> -->
+	<!-- <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script> -->
+	<!-- [endif]-->
+
+	<!-- Custom styles for this template -->
+	<!-- <link href="carousel.css" rel="stylesheet"> -->
+	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
+	<script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
+</head>
+<!-- NAVBAR ================================================== -->
+<body id="bod">
+	<p id="status"></p>
+	<script>
+		var appID = '694364530747436'; //from facebook
+		var roleArn = 'arn:aws:iam::356241754209:role/testWeek4'; //from AWS IAM
+
+		// This is called with the results from from FB.getLoginStatus().
+		function statusChangeCallback(response) 
+		{
+			console.log('statusChangeCallback');
+			console.log(response);
+			// The response object is returned with a status field that lets the app know the current login status of the person.
+			// Full docs on the response object can be found in the documentation for FB.getLoginStatus().
+			if (response.status === 'connected') 
+			{
+				// Logged into your app and Facebook.
+				AWS.config.credentials = new AWS.WebIdentityCredentials
+				(
+					{ //WIF
+						RoleArn: roleArn,
+						ProviderId: 'graph.facebook.com',
+						WebIdentityToken: response.authResponse.accessToken
+					}
+				);
+			}
+			else if (response.status === 'not_authorized') 
+			{
+				// The person is logged into Facebook, but not your app.
+				document.getElementById('status').innerHTML = 'Please log into this app.';
+			}
+			else 
+			{
+				// The person is not logged into Facebook, so we're not sure if
+				// they are logged into this app or not.
+				document.getElementById('status').innerHTML = 'Please log into Facebook.';
+			}
+		};
+
+		// This function is called when someone finishes with the Login Button.  
+		// See the onlogin handler attached to it in the sample code below.
+		function checkLoginState()
+		{
+			FB.getLoginStatus
+			(
+				function(response) 
+				{
+					statusChangeCallback(response);
+				}
+			);
+		}
+
+		window.fbAsyncInit = function()
+		{
+			FB.init({
+			appId      : appID,
+			cookie     : true,  // enable cookies to allow the server to access the session
+			xfbml      : true,  // parse social plugins on this page
+			version    : 'v2.8' // use graph api version 2.8
+			});
+				
+			// Now that we've initialized the JavaScript SDK, we call FB.getLoginStatus().  
+			// This function gets the state of the person visiting this page and can return one of three states to the callback you provide.  
+			// They can be:
+			// 1. Logged into your app ('connected')
+			// 2. Logged into Facebook, but not your app ('not_authorized')
+			// 3. Not logged into Facebook and can't tell if they are logged into your app or not.
+			// These three cases are handled in the callback function.
+			FB.getLoginStatus(function(response)
+			{
+				statusChangeCallback(response);
+			});
+		};
+
+		// Load the SDK asynchronously
+		(function(d, s, id)
+		{
+		var js, fjs = d.getElementsByTagName(s)[0];
+		if (d.getElementById(id)) return;
+		js = d.createElement(s); js.id = id;
+		js.src = "//connect.facebook.net/en_US/sdk.js";
+		fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));
+	</script>
+
+	<!--Below we include the Login Button social plugin. This button uses the JavaScript SDK to present a graphical Login button that triggers the FB.login() function when clicked. -->
+	<fb:login-button scope="public_profile,email" onlogin="checkLoginState();"></fb:login-button>
+	<div id="status"></div>
+	
+	<div class="navbar-wrapper">
+		<div class="container">
+			<nav class="navbar navbar-inverse navbar-static-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="pageOne.html">Project 7</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="pageTwo.html">Two</a></li>
+						<li><a href="pageThree.html">Three</a></li>
+						<li><a href="pageFour.html">Four</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pages<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="pageTwo.html">Page Two</a></li>
+								<li><a href="pageThree.html">Page Three</a></li>
+								<li><a href="pageFour.html">Page Four</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+			</nav>
+		</div>
+	</div>
+	
+	<h1>Cal Poly Classes:</h1>
+	<table>
+	<tr><td><label for="keyVal">Key Value:</label><td><input id="keyValue" type="text"/><br>
+	<tr><td><label for="Attri">Attribute:</label><td><input id="attributeText" type="text"/><br>
+	<tr><td><label for="Val">Value:</label><td><input id="valueText" type="text"/><br>
+	</table>
+	
+	<button id="putThis">Put!</button>
+	</br>
+	</br>
+	</br>
+	<div class="row">
+		<div class="col-sm-5">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Course</h3>
+				</div>
+				<div class="panel-body">
+					<div id="output"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="fb-root"></div>
+
+	<script type="text/javascript">
+		function setCookie(keyText, attText, valText) 
+		{		
+			var d = new Date();
+			d.setTime(d.getTime() + (30*24*60*60*1000));
+			var expires = "expires=" + d.toGMTString();
+			
+			document.cookie = "key="+keyText+"; " + expires;
+			document.cookie = "att="+attText+"; " + expires;
+			document.cookie = "val="+valText+"; " + expires;
+		}
+	
+		document.getElementById('putThis').onclick = function () 
+		{
+			document.getElementById("output").innerHTML = "";
+			dynamodb = new AWS.DynamoDB({ region: 'us-east-2' });
+			docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb });
+			keyText = document.getElementById("keyValue").value;
+			attText = document.getElementById("attributeText").value;
+			valText = document.getElementById("valueText").value;
+			setCookie(keyText, attText, valText);
+			console.log(document.cookie);
+			console.log("Course ID: ", keyText);
+			console.log("Column: ", attText);
+			console.log("Value: ", valText);
+			params = 
+			{
+				TableName: 'mp6',
+				Item: 
+				{
+					keyID: keyText,
+					Desc: valText
+				}
+			};
+			docClient.put
+			(
+				params, function(err, data)
+				{
+					if (err) 
+					{
+						console.log(err);
+						document.getElementById("output").innerHTML = "<b>Invalid Values</b><br>"
+					}
+					else
+					{
+						console.log(data);
+						document.getElementById("output").innerHTML = "Course ID: "+ keyText + "<br>" + attText + ": " + valText + "<br>";
+						window.location.href = "https://s3-us-west-2.amazonaws.com/cppcis311dennisrendon/pageTwo.html?keyText="+keyText+"&attText="+attText+"&valText="+valText;
+					}
+				}
+			)
+		};
+	</script>
+	<!-- Bootstrap core JavaScript =================================================  -->
+	<!-- Placed at the end of the document so the pages load faster  -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> 
+	<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+	<script src="./js/bootstrap.min.js"></script>
+	<!-- Just to make our placeholder images work. Don't actually copy the next line!  -->
+	<!-- <script src="./js/vendor/holder.min.js"></script>  -->
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug  -->
+	<!-- <script src="./assets/js/ie10-viewport-bug-workaround.js"></script>  -->
+</body>
+</html>

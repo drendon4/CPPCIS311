@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="icon" href="./favicon.ico">
+
+	<title>Page One</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="./css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<!-- <link href="./assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet"> -->
+
+	<!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+	<!-- [if lt IE 9]>
+	<!-- <script src="../../assets/js/ie8-responsive-file-warning.js"></script> -->
+	<!-- [endif]-->
+	<!-- <script src="./assets/js/ie-emulation-modes-warning.js"></script> -->
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!-- [if lt IE 9]-->
+	<!-- <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script> -->
+	<!-- <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script> -->
+	<!-- [endif]-->
+
+	<!-- Custom styles for this template -->
+	<!-- <link href="carousel.css" rel="stylesheet"> -->
+	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.2.18.min.js"></script>
+	<script id="facebook-jssdk" src="https://connect.facebook.net/en_US/all.js"></script>
+</head>
+<!-- NAVBAR ================================================== -->
+<body id="bod">
+	<p id="status"></p>
+	<script>
+		var appID = '694364530747436'; //from facebook
+		var roleArn = 'arn:aws:iam::356241754209:role/testWeek4'; //from AWS IAM
+
+		// This is called with the results from from FB.getLoginStatus().
+		function statusChangeCallback(response) 
+		{
+			console.log('statusChangeCallback');
+			console.log(response);
+			// The response object is returned with a status field that lets the app know the current login status of the person. Full docs on the response object can be found in the documentation for FB.getLoginStatus().
+			if (response.status === 'connected') 
+			{
+				// Logged into your app and Facebook.
+				//testAPI();
+				AWS.config.credentials = new AWS.WebIdentityCredentials
+				(
+					{ //WIF
+						RoleArn: roleArn,
+						ProviderId: 'graph.facebook.com',
+						WebIdentityToken: response.authResponse.accessToken
+					}
+				);
+				<!-- testQuery();//will write to output div after page loads -->
+			} 
+			else if (response.status === 'not_authorized') 
+			{
+				// The person is logged into Facebook, but not your app.
+				document.getElementById('status').innerHTML = 'Please log into this app.';
+			} 
+			else 
+			{
+				// The person is not logged into Facebook, so we're not sure if they are logged into this app or not.
+				document.getElementById('status').innerHTML = 'Please log into Facebook.';
+			}
+		}
+
+		// This function is called when someone finishes with the Login Button.  See the onlogin handler attached to it in the sample code below.
+		function checkLoginState() 
+		{
+			FB.getLoginStatus
+			(
+				function(response) 
+				{
+				statusChangeCallback(response);
+				}
+			);
+		}
+
+		window.fbAsyncInit = function() {
+			FB.init({
+					appId      : appID,
+					cookie     : true,  // enable cookies to allow the server to access the session
+					xfbml      : true,  // parse social plugins on this page
+					version    : 'v2.8' // use graph api version 2.8
+			});
+
+			// Now that we've initialized the JavaScript SDK, we call FB.getLoginStatus().  
+			//This function gets the state of the person visiting this page and can return one of three states to the callback you provide.  
+			//They can be:
+			// 1. Logged into your app ('connected')
+			// 2. Logged into Facebook, but not your app ('not_authorized')
+			// 3. Not logged into Facebook and can't tell if they are logged into your app or not.
+			// These three cases are handled in the callback function.
+
+			// Load the SDK asynchronously
+			(function(d, s, id) {
+					var js, fjs = d.getElementsByTagName(s)[0];
+					if (d.getElementById(id)) return;
+					js = d.createElement(s); js.id = id;
+					js.src = "//connect.facebook.net/en_US/sdk.js";
+					fjs.parentNode.insertBefore(js, fjs);
+			}(document, 'script', 'facebook-jssdk')
+	
+			);
+			FB.getLoginStatus
+			(
+				function(response) 
+				{
+					statusChangeCallback(response);
+				}
+			);
+		};
+		
+		function testQuery()
+		{
+			dynamodb = new AWS.DynamoDB({ region: 'us-east-2' });
+			docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb });
+
+			var params = 
+			{
+				TableName:'college',
+				KeyConditionExpression:'college = :vvv',
+				ExpressionAttributeValues: 
+				{
+					':vvv':'a'
+				}
+			}; //end params, now use them below
+
+			docClient.query(params, function(err, resultData)
+			{
+				if(err)
+				{
+					document.getElementById("output").innerHTML = JSON.stringify(err, null, 2);
+				}
+				else 
+				{
+					var increment = 0;
+					resultData.Items.forEach(function(item) 
+					{
+						increment++;
+						console.log("increment = " + increment);//check for increase
+						var x = item.college;
+						var y = item.department;
+						console.log("outputting: x = " + x + " and y = " + y);
+						var newDiv = document.createElement("div");//make a new div, dynamically
+						var idValueForNewDiv = "div" + increment;
+						console.log("id for div is now " + idValueForNewDiv);
+						newDiv.setAttribute("id", idValueForNewDiv); //set id for this new item, so we can talk to it later
+
+						var newp = document.createElement("p");//put a p in the div
+						var newPMessage = "my data is saying: " + x + " " + y + "  "; //what's your message?
+						//console.log("message will be " + newPMessage);
+						var nodeWithMessage = document.createTextNode(newPMessage);//encode in a text node, for printing
+
+						//newp.appendChild(nodeWithMessage);//put the new text element in the new paragraph
+
+						var anchor = document.createElement("a");  // create a new anchor
+						var attributeForAnchor = document.createAttribute("href");        // Create a "href" attribute
+						//https://s3.amazonaws.com/aws-website-iwdsacookbook-qka58/ url prefix
+						attributeForAnchor.value = "https://s3.amazonaws.com/aws-website-iwdsacookbook-qka58/unit6showCRUDafterURLParamsArePased.html?value1=me&value2=meToo&value3=meThree"; // Set the value of the href attribute
+						anchor.setAttributeNode(attributeForAnchor);// Add the href attribute to <a>
+						anchor.appendChild(nodeWithMessage);
+						newp.appendChild(anchor);
+
+						//var finalDiv = document.getElementById(idValueForNewDiv);//set up the newly created div
+						newDiv.appendChild(newp);//append the paragraph to the new div
+
+						var element = document.getElementById("output");//attach the div to the body
+						element.appendChild(newDiv);
+					});
+				}
+			})
+		};
+	</script>
+
+	<!--Below we include the Login Button social plugin. This button uses the JavaScript SDK to present a graphical Login button that triggers the FB.login() function when clicked. -->
+	<fb:login-button scope="public_profile,email" onlogin="checkLoginState();"></fb:login-button>
+	<div id="status"></div>
+	
+	<div class="navbar-wrapper">
+		<div class="container">
+			<nav class="navbar navbar-inverse navbar-static-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="pageOne.html">Project 4</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="pageTwo.html">Two</a></li>
+						<li><a href="pageThree.html">Three</a></li>
+						<li><a href="pageFour.html">Four</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pages<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="pageTwo.html">Page Two</a></li>
+								<li><a href="pageThree.html">Page Three</a></li>
+								<li><a href="pageFour.html">Page Four</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+			</nav>
+		</div>
+	</div>
+	
+	<h1>Cal Poly Departments:</h1>
+	<table>
+	<tr><td><label for="keyVal">College:</label><td><input id="keyValue" type="text"/><br>
+	<tr><td><label for="Attri">Department:</label><td><input id="attributeText" type="text"/><br>
+	<tr><td><label for="Val">Value:</label><td><input id="valueText" type="text"/><br>
+	</table>
+	<button id="putThis">Put!</button> | <button id="getThis">Get!</button> | <button id="updateThis">Update!</button> | <button id="deleteThis">Delete!</button></br></br></br>
+	<div class="row">
+		<div class="col-sm-5">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Departments</h3>
+				</div>
+				<div class="panel-body">
+					<div id="output"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="fb-root"></div>
+
+	<script type="text/javascript">
+		var myinput = null;
+		
+		function getPrimaryKey()
+		{
+			dynamodb = new AWS.DynamoDB({ region: 'us-east-2' });
+			docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb });
+			keyText = document.getElementById("keyValue").value;
+			attText = document.getElementById("attributeText").value;
+			valText = document.getElementById("valueText").value;
+			var params = 
+			{
+				TableName: 'college',
+				ProjectionExpression: '#c, dep, collegeID',	//limits columns returned by query
+				FilterExpression: '#c = :col',	//filters the returned data
+				ExpressionAttributeNames: //substitue column names with variables
+				{
+					'#c': 'col',
+				},
+				ExpressionAttributeValues:
+				{
+					':col': keyText
+				}
+			};
+			
+			docClient.scan(params, onScan);
+			function onScan(err, data) 
+			{
+				if (err) 
+				{
+					console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+				}
+				else 
+				{
+					data.Items.forEach(function(college) 
+					{
+						return
+						{
+							colID = college.collegeID;
+							console.log(colID);
+						}
+					});
+					// continue scanning if we have more movies, because
+					// scan can retrieve a maximum of 1MB of data
+					if (typeof data.LastEvaluatedKey != "undefined") {
+						console.log("Scanning for more...");
+						params.ExclusiveStartKey = data.LastEvaluatedKey;
+						docClient.scan(params, onScan);
+					}
+				}
+			}
+		};
+		
+		document.getElementById('putThis').onclick = function () 
+		{
+			dynamodb = new AWS.DynamoDB({ region: 'us-east-2' });
+			docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb });
+			keyText = document.getElementById("keyValue").value;
+			attText = document.getElementById("attributeText").value;
+			valText = document.getElementById("valueText").value;
+			console.log("college: ", keyText);
+			console.log("department: ", attText);
+			console.log("Value: ", valText);
+			params = 
+			{
+				TableName: 'college',
+				Item: 
+				{
+					college: keyText,
+					department: valText
+				}
+			};
+			docClient.put
+			(
+				params, function(err, data)
+				{
+					if (err) 
+					{
+						console.log(err);
+					}
+					else
+					{
+						resultData = data;
+						console.log(resultData);
+					}
+				}
+			)
+		};
+
+		document.getElementById('getThis').onclick = function () 
+		{
+			keyText = document.getElementById("keyValue").value;
+			attText = document.getElementById("attributeText").value;
+			valText = document.getElementById("valueText").value;
+			
+			if (keyText || attText || valText)
+			{
+				var primkey = getPrimaryKey();
+				console.log("not null");
+			}
+			else
+			{
+				document.getElementById('output').innerHTML = 'Please enter a value in College, Department or Value';
+			}
+			
+			//var primkey = getPrimaryKey();
+			//console.log(primkey);
+			<!-- dynamodb = new AWS.DynamoDB({ region: 'us-east-2' }); -->
+			<!-- docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb }); -->
+			<!-- keyText = document.getElementById("keyValue").value; -->
+			<!-- attText = document.getElementById("attributeText").value; -->
+			<!-- console.log("college: ", keyText); -->
+			<!-- console.log("department: ", attText); -->
+			<!-- params =  -->
+			<!-- { -->
+				<!-- TableName: 'college', -->
+				<!-- Key:  -->
+				<!-- { -->
+					<!-- college: keyText -->
+				<!-- }, -->
+				<!-- ProjectionExpression: "#a", -->
+				<!-- ExpressionAttributeNames:  -->
+				<!-- { -->
+					<!-- '#a': attText -->
+				<!-- } -->
+			<!-- }; -->
+			<!-- docClient.get -->
+			<!-- ( -->
+				<!-- params, function (err, data)  -->
+				<!-- { -->
+					<!-- if (err) -->
+					<!-- { -->
+						<!-- console.log(err, err.stack); -->
+					<!-- } -->
+					<!-- else  -->
+					<!-- { -->
+						<!-- console.log("success, logging data: "); -->
+						<!-- console.log(data);//shows keys -->
+						<!-- console.log("attribute 1 is " + data.Item.department) -->
+						<!-- //var output = data.Item.department; -->
+						
+						<!-- var newDiv = document.createElement("div");//make a new div, dynamically -->
+						<!-- var idValueForNewDiv = "div" + 1; -->
+						<!-- console.log("id for div is now " + idValueForNewDiv); -->
+						<!-- newDiv.setAttribute("id", idValueForNewDiv); //set id for this new item, so we can talk to it later -->
+						
+						<!-- var newp = document.createElement("p");//put a p in the div -->
+						<!-- var newPMessage = "my data is saying: " + data.Item.department + "  "; //what's your message? -->
+
+						<!-- var nodeWithMessage = document.createTextNode(newPMessage);//encode in a text node, for printing -->
+
+						<!-- var anchor = document.createElement("a");  // create a new anchor -->
+						<!-- var attributeForAnchor = document.createAttribute("href");        // Create a "href" attribute -->
+
+						<!-- attributeForAnchor.value = "https://s3-us-west-2.amazonaws.com/cppcis311dennisrendon/pageTwo.html?value1=me&value2=meToo&value3=meThree"; // Set the value of the href attribute -->
+						<!-- anchor.setAttributeNode(attributeForAnchor);// Add the href attribute to <a> -->
+						<!-- anchor.appendChild(nodeWithMessage); -->
+						<!-- newp.appendChild(anchor); -->
+						<!-- newDiv.appendChild(newp);//append the paragraph to the new div -->
+
+						<!-- var element = document.getElementById("output");//attach the div to the body -->
+						<!-- element.appendChild(newDiv); -->
+					<!-- } -->
+				<!-- } -->
+			<!-- ) -->
+		};
+		
+		document.getElementById('updateThis').onclick = function () 
+		{
+			dynamodb = new AWS.DynamoDB({ region: 'us-east-2' });
+			docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb });
+			keyText = document.getElementById("keyValue").value;
+			attText = document.getElementById("attributeText").value;
+			valText = document.getElementById("valueText").value;
+			console.log("college: ", keyText);
+			console.log("department: ", attText);
+			console.log("Value: ", valText);
+			params = 
+			{
+				TableName: 'college',
+				Key: 
+				{
+					college: keyText
+				},
+				ExpressionAttributeNames: 
+				{
+					'#a': attText
+				},
+				ExpressionAttributeValues: 
+				{
+					':v': valText
+				},
+				UpdateExpression: 'set #a = :v',
+			};
+			docClient.update
+			(
+				params, function (err, data) 
+				{
+					if (err) 
+					{
+						console.log(err);
+					}
+					else 
+					{
+						console.log(data);
+					}
+				}
+			)	
+		};
+
+		document.getElementById('deleteThis').onclick = function () 
+		{
+			dynamodb = new AWS.DynamoDB({ region: 'us-east-2' });
+			docClient = new AWS.DynamoDB.DocumentClient({ service: dynamodb });
+			keyText = document.getElementById("keyValue").value;
+			console.log("college: ", keyText);
+			params = 
+			{
+				TableName: 'college',
+				Key: 
+				{
+					college: keyText
+				}
+			};
+			docClient.delete
+			(
+				params, function(err, data)
+				{
+					if(err) 
+					{
+						console.log(err);
+					}
+					else 
+					{
+						console.log(data);
+					}
+				}
+			);
+		};
+	</script>
+	<!-- Bootstrap core JavaScript =================================================  -->
+	<!-- Placed at the end of the document so the pages load faster  -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> 
+	<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+	<script src="./js/bootstrap.min.js"></script>
+	<!-- Just to make our placeholder images work. Don't actually copy the next line!  -->
+	<!-- <script src="./js/vendor/holder.min.js"></script>  -->
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug  -->
+	<!-- <script src="./assets/js/ie10-viewport-bug-workaround.js"></script>  -->
+</body>
+</html>
